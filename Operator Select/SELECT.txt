@@ -1,0 +1,106 @@
+﻿--Task 1--
+--Все товары, в названии которых есть "urgent" или название начинается с "Animal". Вывести: ИД товара, наименование товара.
+
+Select StockItemID, StockItemName
+ From Warehouse.StockItems
+  Where (StockItemName Like 'urgent') Or (StockItemName Like 'Animal%')
+
+--Task 2--
+--Поставщиков (Suppliers), у которых не было сделано ни одного заказа (PurchaseOrders). 
+--Вывести: ИД поставщика, наименование поставщика.
+
+Select Distinct PS.SupplierID, SupplierName --Count(PurchaseOrderID) As Cnt
+ From Purchasing.Suppliers As PS
+  Left Join Purchasing.PurchaseOrders As PP
+   On PS.SupplierID = PP.SupplierID
+    Where PurchaseOrderID Is Null
+     Group by PS.SupplierID, SupplierName
+	 --Having Count(PurchaseOrderID) = 0 --
+
+--Task 3--
+--Заказы (Orders) с ценой товара более 100$ либо количеством единиц товара более 20 штук 
+--и присутствующей датой комплектации всего заказа (PickingCompletedWhen).
+--Вывести:
+--* OrderID
+--* дату заказа в формате ДД.ММ.ГГГГ
+--* название месяца, в котором была продажа
+--* номер квартала, к которому относится продажа
+--* треть года, к которой относится дата продажи (каждая треть по 4 месяца)
+--* имя заказчика (Customer)
+--Добавьте вариант этого запроса с постраничной выборкой, пропустив первую 1000 и отобразив следующие 100 записей. 
+--Сортировка должна быть по номеру квартала, трети года, дате заказа (везде по возрастанию).
+
+Select SO.OrderID,
+       convert(char(10), OrderDate, 104) As OD,
+	  -- cast(SO.PickingCompletedWhen as date) As DatePicking, --
+	  Month(OrderDate),
+	   DateName(Month, SO.OrderDate) As NameMonth,
+	   DatePart(Quarter, SO.OrderDate) As NumberQuarter,
+	   (Case
+	     When Month(OrderDate) between 1 and 4 Then 'One'
+		 When Month(OrderDate) between 5 and 8 Then 'Two'
+		 When Month(OrderDate) between 9 and 12 Then 'Three'
+	   End) As ThirdOfTheYear,
+	   SC.CustomerName
+ From Sales.Orders As SO
+  Join Sales.OrderLines As SOL
+   On SO.OrderID = SOL.OrderID
+    Join Sales.Customers AS SC
+	 On SO.CustomerID = SO.CustomerID
+    Where (UnitPrice > 100 Or Quantity > 20) And (SOL.PickingCompletedWhen is not null)
+	 Order By NumberQuarter, OD
+	 Offset 1000 Rows Fetch Next 100 Rows Only
+
+--Task 4--
+--Заказы поставщикам (Purchasing.Suppliers), 
+--которые были исполнены в январе 2014 года с доставкой Air Freight или Refrigerated Air Freight (DeliveryMethodName).
+--Вывести:
+--* способ доставки (DeliveryMethodName)
+--* дата доставки
+--* имя поставщика
+--* имя контактного лица принимавшего заказ (ContactPerson)
+
+Select Ad.DeliveryMethodName, 
+       PP.ExpectedDeliveryDate,
+	   PS.SupplierName,
+	   AP.FullName
+ From Application.DeliveryMethods As AD
+  Join Purchasing.Suppliers As PS
+   On PS.DeliveryMethodID = AD.DeliveryMethodID
+    Join Purchasing.PurchaseOrders As PP
+	 On AD.DeliveryMethodID = PP.DeliveryMethodID
+	  Join Application.People As AP
+	    On AD.LastEditedBy = AP.PersonID
+	  Where (ExpectedDeliveryDate between '20140101 00:00:00' And '20140131 23:59:59') Or
+	   (AD.DeliveryMethodName = 'Air Freight' or AD.DeliveryMethodName = 'Refrigerated Air Freight')
+
+--Task 5--
+--Десять последних продаж (по дате) с именем клиента и именем сотрудника, который оформил заказ (SalespersonPerson).
+
+Select Top 10 PickingCompletedWhen AS Date, 
+       SC.CustomerName,
+	   AP.FullName
+ From Sales.Orders SO
+  Join Sales.Customers SC
+   On SO.CustomerID = SC.CustomerID
+    Join Application.People As AP
+	 On SC.LastEditedBy = AP.LastEditedBy
+      Order By PickingCompletedWhen Desc
+
+--Task 6--
+--Все ид и имена клиентов и их контактные телефоны, 
+--которые покупали товар Chocolate frogs 250g.
+--Имя товара смотреть в Warehouse.StockItems.
+
+Select SO.CustomerID, CustomerName, AP.PhoneNumber, AP.FaxNumber, StockItemName
+ From Sales.Orders SO
+  Join Sales.Customers SC
+   On SO.CustomerID = SC.CustomerID
+    Join Application.People AP
+	 On SO.LastEditedBy = AP.PersonID
+	  Join (Select WS.StockItemID, WS.StockItemName,SOL.OrderID, SOL.PickedQuantity, SOL.UnitPrice
+	         From Warehouse.StockItems WS
+			  Join Sales.OrderLines SOL
+			   On SOL.StockItemID = WS.StockItemID) As StockItems
+		On SO.OrderID = StockItems.OrderID
+	Where StockItemName = 'Chocolate frogs 250g'
