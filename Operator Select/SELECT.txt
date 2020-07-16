@@ -60,32 +60,33 @@ Select SO.OrderID,
 --* имя поставщика
 --* имя контактного лица принимавшего заказ (ContactPerson)
 
-Select Ad.DeliveryMethodName, 
-       PP.ExpectedDeliveryDate,
-	   PS.SupplierName,
-	   AP.FullName
- From Application.DeliveryMethods As AD
-  Join Purchasing.Suppliers As PS
-   On PS.DeliveryMethodID = AD.DeliveryMethodID
-    Join Purchasing.PurchaseOrders As PP
-	 On AD.DeliveryMethodID = PP.DeliveryMethodID
-	  Join Application.People As AP
-	    On AD.LastEditedBy = AP.PersonID
-	  Where (ExpectedDeliveryDate between '20140101 00:00:00' And '20140131 23:59:59') Or
+Select DeliveryMethodName, 
+       ExpectedDeliveryDate,
+	   SupplierName,
+	   ContactPersonID,
+	   FullName
+ From Purchasing.PurchaseOrders PP
+  Join Application.DeliveryMethods As AD
+   On PP.DeliveryMethodID = AD.DeliveryMethodID
+  Join Purchasing.Suppliers PS
+   On PP.SupplierID = PS.SupplierID
+  Join Application.People AP
+   On PP.ContactPersonID = AP.PersonID
+	  Where (ExpectedDeliveryDate between '20140101' And '20140131') And
 	   (AD.DeliveryMethodName = 'Air Freight' or AD.DeliveryMethodName = 'Refrigerated Air Freight')
 
 --Task 5--
 --Десять последних продаж (по дате) с именем клиента и именем сотрудника, который оформил заказ (SalespersonPerson).
 
-Select Top 10 PickingCompletedWhen AS Date, 
+Select Top 10 OrderDate,
        SC.CustomerName,
 	   AP.FullName
  From Sales.Orders SO
   Join Sales.Customers SC
    On SO.CustomerID = SC.CustomerID
     Join Application.People As AP
-	 On SC.LastEditedBy = AP.LastEditedBy
-      Order By PickingCompletedWhen Desc
+	 On  SO.SalespersonPersonID = AP.PersonID
+      Order By OrderDate Desc
 
 --Task 6--
 --Все ид и имена клиентов и их контактные телефоны, 
