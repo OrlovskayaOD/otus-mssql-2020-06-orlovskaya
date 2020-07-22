@@ -1,18 +1,32 @@
---1 задание--
---Выберите сотрудников (Application.People), 
---которые являются продажниками (IsSalesPerson), и не сделали ни одной продажи 04 июля 2015 года. 
---Вывести ИД сотрудника и его полное имя. Продажи смотреть в таблице Sales.Invoices.
+--1 Г§Г Г¤Г Г­ГЁГҐ--
+--Г‚Г»ГЎГҐГ°ГЁГІГҐ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ®Гў (Application.People), 
+--ГЄГ®ГІГ®Г°Г»ГҐ ГїГўГ«ГїГѕГІГ±Гї ГЇГ°Г®Г¤Г Г¦Г­ГЁГЄГ Г¬ГЁ (IsSalesPerson), ГЁ Г­ГҐ Г±Г¤ГҐГ«Г Г«ГЁ Г­ГЁ Г®Г¤Г­Г®Г© ГЇГ°Г®Г¤Г Г¦ГЁ 04 ГЁГѕГ«Гї 2015 ГЈГ®Г¤Г . 
+--Г‚Г»ГўГҐГ±ГІГЁ Г€Г„ Г±Г®ГІГ°ГіГ¤Г­ГЁГЄГ  ГЁ ГҐГЈГ® ГЇГ®Г«Г­Г®ГҐ ГЁГ¬Гї. ГЏГ°Г®Г¤Г Г¦ГЁ Г±Г¬Г®ГІГ°ГҐГІГј Гў ГІГ ГЎГ«ГЁГ¶ГҐ Sales.Invoices.
+
+--select AP.PersonID, AP.FullName 
+-- from Application.People AP  
+--  where  exists 
+--   (select * 
+ --    from Sales.Invoices SI
+	--  where IsSalesPerson=1 and OrderID is null and SI.InvoiceDate = '2015-07-04' and AP.PersonID = SI.SalespersonPersonID)
 
 select AP.PersonID, AP.FullName 
  from Application.People AP  
-  where  exists 
+  where IsSalesPerson=1 and not exists
    (select * 
      from Sales.Invoices SI
-	  where IsSalesPerson=1 and OrderID is null and SI.InvoiceDate = '2015-07-04' and AP.PersonID = SI.SalespersonPersonID)
+	  where SI.InvoiceDate = '2015-07-04' and AP.PersonID = SI.SalespersonPersonID)
 
---2 задание--
---Выберите товары с минимальной ценой (подзапросом). 
---Сделайте два варианта подзапроса. Вывести: ИД товара, наименование товара, цена.
+select AP.PersonID, AP.FullName 
+ from Application.People AP  
+  where IsSalesPerson=1 and IsSalesperson not in
+   (select IsSalesperson
+     from Sales.Invoices SI
+	  where SI.InvoiceDate = '2015-07-04' and AP.PersonID = SI.SalespersonPersonID)
+
+--2 Р·Р°РґР°РЅРёРµ--
+--Р’С‹Р±РµСЂРёС‚Рµ С‚РѕРІР°СЂС‹ СЃ РјРёРЅРёРјР°Р»СЊРЅРѕР№ С†РµРЅРѕР№ (РїРѕРґР·Р°РїСЂРѕСЃРѕРј). 
+--РЎРґРµР»Р°Р№С‚Рµ РґРІР° РІР°СЂРёР°РЅС‚Р° РїРѕРґР·Р°РїСЂРѕСЃР°. Р’С‹РІРµСЃС‚Рё: РР” С‚РѕРІР°СЂР°, РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°, С†РµРЅР°.
 
 select StockItemID, StockItemName, UnitPrice
  from Warehouse.StockItems
@@ -24,23 +38,60 @@ select StockItemID, StockItemName, UnitPrice
   where UnitPrice =All (select Min(UnitPrice)
                         from Warehouse.StockItems)
 
---3 задание--
---Выберите информацию по клиентам, которые перевели компании пять максимальных платежей из Sales.
---CustomerTransactions. Представьте несколько способов (в том числе с CTE).
-select CustomerID, FullName, PersonID
+select StockItemID, StockItemName, UnitPrice
+ from Warehouse.StockItems
+  where UnitPrice <=All (select UnitPrice
+                        from Warehouse.StockItems)
+
+--3 Р·Р°РґР°РЅРёРµ--
+--Р’С‹Р±РµСЂРёС‚Рµ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ РєР»РёРµРЅС‚Р°Рј, РєРѕС‚РѕСЂС‹Рµ РїРµСЂРµРІРµР»Рё РєРѕРјРїР°РЅРёРё РїСЏС‚СЊ РјР°РєСЃРёРјР°Р»СЊРЅС‹С… РїР»Р°С‚РµР¶РµР№ РёР· Sales.
+--CustomerTransactions. РџСЂРµРґСЃС‚Р°РІСЊС‚Рµ РЅРµСЃРєРѕР»СЊРєРѕ СЃРїРѕСЃРѕР±РѕРІ (РІ С‚РѕРј С‡РёСЃР»Рµ СЃ CTE).
+
+--select CT.CustomerID, FullName, PersonID
+-- from Sales.CustomerTransactions CT
+--  join Application.People AP 
+--   on CT.LastEditedBy = AP.PersonID
+--   where TransactionAmount IN (select top 5 TransactionAmount
+--                                 from Sales.CustomerTransactions
+--                                   order by TransactionAmount desc)
+
+select CT.CustomerID, CustomerName
  from Sales.CustomerTransactions CT
-  join Application.People AP on CT.LastEditedBy = AP.PersonID
+  join Sales.Customers SC
+   on CT.CustomerID = SC.CustomerID
    where TransactionAmount IN (select top 5 TransactionAmount
                                  from Sales.CustomerTransactions
                                    order by TransactionAmount desc)
 
-select CustomerID, FullName, PersonID
+--select CustomerID, FullName, PersonID
+-- from Sales.CustomerTransactions CT
+--  join Application.People P on CT.LastEditedBy = P.PersonID
+--   where TransactionAmount =any (select top 5 TransactionAmount
+--                                 from Sales.CustomerTransactions
+--                                   order by TransactionAmount desc)
+
+select CT.CustomerID, CustomerName
  from Sales.CustomerTransactions CT
-  join Application.People P on CT.LastEditedBy = P.PersonID
+  join Sales.Customers SC
+   on CT.CustomerID = SC.CustomerID
    where TransactionAmount =any (select top 5 TransactionAmount
                                  from Sales.CustomerTransactions
                                    order by TransactionAmount desc)
 
+--;with cteTOP5Customer as
+
+--     (
+--       select top 5 TransactionAmount
+--        from Sales.CustomerTransactions
+--         order by TransactionAmount desc
+--     ) 
+
+--select CustomerID, FullName, PersonID
+-- from Sales.CustomerTransactions CT
+--  join Application.People P on CT.LastEditedBy = P.PersonID
+--   where TransactionAmount IN (select *
+--                                from cteTOP5Customer)
+
 ;with cteTOP5Customer as
 
      (
@@ -49,12 +100,27 @@ select CustomerID, FullName, PersonID
          order by TransactionAmount desc
      ) 
 
-select CustomerID, FullName, PersonID
+select CT.CustomerID, CustomerName
  from Sales.CustomerTransactions CT
-  join Application.People P on CT.LastEditedBy = P.PersonID
+  join Sales.Customers SC
+   on CT.CustomerID = SC.CustomerID
    where TransactionAmount IN (select *
                                 from cteTOP5Customer)
 
+--;with cteTOP5Customer as
+
+--     (
+--       select top 5 TransactionAmount
+--        from Sales.CustomerTransactions
+--         order by TransactionAmount desc
+--     ) 
+
+--select CustomerID, FullName, PersonID
+-- from Sales.CustomerTransactions CT
+--  join Application.People P on CT.LastEditedBy = P.PersonID
+--   where TransactionAmount =any (select *
+--                                  from cteTOP5Customer)
+
 ;with cteTOP5Customer as
 
      (
@@ -63,16 +129,26 @@ select CustomerID, FullName, PersonID
          order by TransactionAmount desc
      ) 
 
-select CustomerID, FullName, PersonID
+select CT.CustomerID, CustomerName
  from Sales.CustomerTransactions CT
-  join Application.People P on CT.LastEditedBy = P.PersonID
+  join Sales.Customers SC
+   on CT.CustomerID = SC.CustomerID
    where TransactionAmount =any (select *
                                   from cteTOP5Customer)
 
---4 задание--
---Выберите города (ид и название), в которые были доставлены товары, 
---входящие в тройку самых дорогих товаров, а также имя сотрудника, 
---который осуществлял упаковку заказов (PackedByPersonID).
+--4 Р·Р°РґР°РЅРёРµ--
+--Р’С‹Р±РµСЂРёС‚Рµ РіРѕСЂРѕРґР° (РёРґ Рё РЅР°Р·РІР°РЅРёРµ), РІ РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё РґРѕСЃС‚Р°РІР»РµРЅС‹ С‚РѕРІР°СЂС‹, 
+--РІС…РѕРґСЏС‰РёРµ РІ С‚СЂРѕР№РєСѓ СЃР°РјС‹С… РґРѕСЂРѕРіРёС… С‚РѕРІР°СЂРѕРІ, Р° С‚Р°РєР¶Рµ РёРјСЏ СЃРѕС‚СЂСѓРґРЅРёРєР°, 
+--РєРѕС‚РѕСЂС‹Р№ РѕСЃСѓС‰РµСЃС‚РІР»СЏР» СѓРїР°РєРѕРІРєСѓ Р·Р°РєР°Р·РѕРІ (PackedByPersonID).
+
+--select CityID, CityName, SI.PackedByPersonID, AP.FullName
+-- from Application.People AP
+--  Join Application.Cities AC
+--   On AC.LastEditedBy = AP.PersonID
+--  Join Sales.Invoices SI
+--   On SI.PackedByPersonID = AP.PersonID
+--  where exists (Select TOP 3 StockItemName, UnitPrice From Warehouse.StockItems Order By UnitPrice Desc) 
+--   Group by CityID, CityName, SI.PackedByPersonID, AP.FullName
 
 select CityID, CityName, SI.PackedByPersonID, AP.FullName
  from Application.People AP
@@ -80,11 +156,14 @@ select CityID, CityName, SI.PackedByPersonID, AP.FullName
    On AC.LastEditedBy = AP.PersonID
   Join Sales.Invoices SI
    On SI.PackedByPersonID = AP.PersonID
-  where exists (Select TOP 3 StockItemName, UnitPrice From Warehouse.StockItems Order By UnitPrice Desc) 
-   Group by CityID, CityName, SI.PackedByPersonID, AP.FullName
+  Join Warehouse.StockItems WS 
+   On AP.PersonID = WS.LastEditedBy
+  where exists (Select TOP 3 UnitPrice 
+                  From Warehouse.StockItems 
+				    Order By UnitPrice Desc)
 
---5 задание--
---Оптимизация
+--5 Р·Р°РґР°РЅРёРµ--
+--РћРїС‚РёРјРёР·Р°С†РёСЏ
 
 ;With cte (InvoiceId, TotalSumm) As
 
