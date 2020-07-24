@@ -150,17 +150,29 @@ select CT.CustomerID, CustomerName
 --  where exists (Select TOP 3 StockItemName, UnitPrice From Warehouse.StockItems Order By UnitPrice Desc) 
 --   Group by CityID, CityName, SI.PackedByPersonID, AP.FullName
 
-select CityID, CityName, SI.PackedByPersonID, AP.FullName
- from Application.People AP
-  Join Application.Cities AC
-   On AC.LastEditedBy = AP.PersonID
-  Join Sales.Invoices SI
-   On SI.PackedByPersonID = AP.PersonID
-  Join Warehouse.StockItems WS 
-   On AP.PersonID = WS.LastEditedBy
-  where exists (Select TOP 3 UnitPrice 
-                  From Warehouse.StockItems 
-				    Order By UnitPrice Desc)
+--select CityID, CityName, SI.PackedByPersonID, AP.FullName
+-- from Application.People AP
+--  Join Application.Cities AC
+--   On AC.LastEditedBy = AP.PersonID
+--  Join Sales.Invoices SI
+--   On SI.PackedByPersonID = AP.PersonID
+--  Join Warehouse.StockItems WS 
+--   On AP.PersonID = WS.LastEditedBy
+--  where exists (Select TOP 3 UnitPrice 
+--                  From Warehouse.StockItems 
+--				    Order By UnitPrice Desc)
+
+SELECT DISTINCT
+  CityID, CityName, PackedByPersonID, FullName
+FROM Sales.Invoices si
+  JOIN Sales.InvoiceLines sil ON si.InvoiceId = sil.InvoiceId
+  JOIN Sales.Customers sc ON si.CustomerId = sc.CustomerId
+  JOIN Application.Cities ac ON sc.DeliveryCityID = ac.CityID
+  JOIN Application.People ap ON si.PackedByPersonID = ap.PersonId  /* PackedByPersonID */
+WHERE
+    sil.StockItemID IN (SELECT TOP(3) StockItems.StockItemID
+                                   FROM Warehouse.StockItems
+                                     ORDER BY StockItems.UnitPrice DESC);
 
 --5 задание--
 --Оптимизация
