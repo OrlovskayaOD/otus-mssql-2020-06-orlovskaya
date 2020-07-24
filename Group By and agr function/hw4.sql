@@ -71,6 +71,7 @@ select datepart(year, InvoiceDate) as 'Year',
        datepart(month, InvoiceDate) as 'Month',
 	   ws.StockItemName as 'Name',
 	   sum(ws.UnitPrice) as 'Total',
+	   min(InvoiceDate) as 'First Date',
 	   count(sil.Quantity) as 'Amount'
  from sales.Invoices si
   join sales.InvoiceLines sil
