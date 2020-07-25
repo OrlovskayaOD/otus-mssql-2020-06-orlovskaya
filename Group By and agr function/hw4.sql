@@ -72,7 +72,7 @@ select datepart(year, InvoiceDate) as 'Year',
 	   ws.StockItemName as 'Name',
 	   sum(ws.UnitPrice) as 'Total',
 	   min(InvoiceDate) as 'First Date',
-	   count(sil.Quantity) as 'Amount'
+	   sum(sil.Quantity) as 'Amount'
  from sales.Invoices si
   join sales.InvoiceLines sil
    on si.InvoiceID = sil.InvoiceID
@@ -80,7 +80,7 @@ select datepart(year, InvoiceDate) as 'Year',
    on sil.StockItemID = ws.StockItemID
  group by datepart(year, InvoiceDate),
            datepart(month, InvoiceDate),
-		    ws.StockItemName, datepart(day, InvoiceDate)
+		    ws.StockItemName
  having count(sil.Quantity) < 50
  order by datepart(year, InvoiceDate),
           datepart(month, InvoiceDate)
@@ -123,15 +123,57 @@ select datepart(year, InvoiceDate) as 'Year',
 --286 | | |  Lynn Tsoflias       Sales Representative         4
 
 ;with cte as(
-select EmployeeID, concat(trim(FirstName), ' ', trim(LastName)) as [Name], trim(title) as title, ManagerID, 1 as EmployeeLevel
+select EmployeeID, concat(trim(FirstName), ' ', trim(LastName)) as [Name], trim(title) as title, 1 as EmployeeLevel
  from MyEmployees
   where ManagerID is null
 
   union all
 
-  select me.EmployeeID, concat(trim(me.FirstName), ' ', trim(me.LastName)), trim(me.title), me.ManagerID, EmployeeLevel + 1
+  select me.EmployeeID, concat(trim(me.FirstName), ' ', trim(me.LastName)), trim(me.title), EmployeeLevel + 1
  from MyEmployees me
   inner join cte c on c.EmployeeID = me.ManagerID)
 
   select *
    from cte
+
+
+--временная табличная переменная
+ declare @tab1 table
+ (EmployeeID smallint,
+  [Name] nvarchar(30),
+  Title nvarchar(50),
+  EmplLev int);
+
+  ;with cte as(
+select EmployeeID, concat(trim(FirstName), ' ', trim(LastName)) as [Name], trim(title) as title, 1 as EmployeeLevel
+ from MyEmployees
+  where ManagerID is null
+
+  union all
+
+  select me.EmployeeID, concat(trim(me.FirstName), ' ', trim(me.LastName)), trim(me.title), EmployeeLevel + 1
+ from MyEmployees me
+  inner join cte c on c.EmployeeID = me.ManagerID)
+
+  insert into @tab1 --(EmployeeID, [Name], Title, EmplLev) 
+   select * from cte
+
+  select * from @tab1
+
+--временная таблица
+drop table if exists #testtab;
+
+;with cte as(
+select EmployeeID, concat(trim(FirstName), ' ', trim(LastName)) as [Name], trim(title) as title, 1 as EmployeeLevel
+ from MyEmployees
+  where ManagerID is null
+
+  union all
+
+  select me.EmployeeID, concat(trim(me.FirstName), ' ', trim(me.LastName)), trim(me.title), EmployeeLevel + 1
+ from MyEmployees me
+  inner join cte c on c.EmployeeID = me.ManagerID)
+
+  select * into #testtab from cte
+
+  select * from #testtab
