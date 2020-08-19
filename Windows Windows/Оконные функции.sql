@@ -100,13 +100,13 @@ select distinct	si.InvoiceId,
 --Если посмотреть по плану выполнения, то запрос с оконной функцией выполняется быстрее, чем запрос с подзапросом. 
 --При Set statistic on. При выполнении запроса с оконной функцией время ЦП = 110 мс, истекшее время = 140 мс, а при выполнении запроса с подзапросом ремя ЦП = 515 мс, затраченное время = 1215 мс.
 
---3. Вывести список 2х самых популярных продуктов (по кол-ву проданных) в каждом месяце за 2016й год (по 2 самых популярных продукта в каждом месяце)
+--3. Вывести список 2х самых популярных продуктов (по кол-ву проданных) в каждом месяце за 2016й год (по 2 самых популярных продукта в каждом месяце)--3. Вывести список 2х самых популярных продуктов (по кол-ву проданных) в каждом месяце за 2016й год (по 2 самых популярных продукта в каждом месяце)
 
 	select * 
 		from(select	si.StockItemID, 
 					si.StockItemName, 
 					il.Quantity, 
-					i.InvoiceDate, 
+				--	i.InvoiceDate, 
 					month (i.InvoiceDate) as monthh, 
 					year (i.InvoiceDate) as yeaar,
 					ROW_NUMBER() Over (Partition by month(i.InvoiceDate) Order by il.Quantity Desc) as RowNumber
@@ -115,7 +115,7 @@ select distinct	si.InvoiceId,
 								join Warehouse.StockItems si on si.StockItemID = il.StockItemID
 									where  year(i.InvoiceDate) = '2016' ) as tbl
 			where  RowNumber <= 2
-				order by month(InvoiceDate), year (InvoiceDate);
+			--	order by month(InvoiceDate), year (InvoiceDate);
 
 --4. Функции одним запросом
 --Посчитайте по таблице товаров,
@@ -157,7 +157,7 @@ select *
 					join Sales.Customers c on o.CustomerID = c.CustomerID) as tabl
 	where LastSalCust = 1;
 
---6. Выберите по каждому клиенту 2 самых дорогих товара, которые он покупал
+--6. Выберите по каждому клиенту 2 самых дорогих товара, которые он покупал--6. Выберите по каждому клиенту 2 самых дорогих товара, которые он покупал
 --В результатах должно быть ид клиета, его название, ид товара, цена, дата покупки
 
 select *
@@ -166,10 +166,9 @@ select *
 				si.StockItemID,
 				si.UnitPrice,
 				i.InvoiceDate,  
-				row_number() over (partition by i.CustomerID order by si.UnitPrice) as CustTrans
+				row_number() over (partition by i.CustomerID order by si.UnitPrice desc) as CustTrans
 			from Sales.InvoiceLines il
 				join Warehouse.StockItems si on il.StockItemID = si.StockItemID 
 					join Sales.Invoices i on il.InvoiceID = i.InvoiceID
 						join Sales.Customers sc on i.CustomerID = sc.CustomerID) as tabl
 	where CustTrans <= 2
-	 order by CustomerID desc
