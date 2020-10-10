@@ -1,32 +1,33 @@
---Pivot и Cross Apply
---1. Требуется написать запрос, который в результате своего выполнения формирует таблицу следующего вида:
---Название клиента
---МесяцГод Количество покупок
+--Pivot Рё Cross Apply
+--1. РўСЂРµР±СѓРµС‚СЃСЏ РЅР°РїРёСЃР°С‚СЊ Р·Р°РїСЂРѕСЃ, РєРѕС‚РѕСЂС‹Р№ РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ СЃРІРѕРµРіРѕ РІС‹РїРѕР»РЅРµРЅРёСЏ С„РѕСЂРјРёСЂСѓРµС‚ С‚Р°Р±Р»РёС†Сѓ СЃР»РµРґСѓСЋС‰РµРіРѕ РІРёРґР°:
+--РќР°Р·РІР°РЅРёРµ РєР»РёРµРЅС‚Р°
+--РњРµСЃСЏС†Р“РѕРґ РљРѕР»РёС‡РµСЃС‚РІРѕ РїРѕРєСѓРїРѕРє
 
---Клиентов взять с ID 2-6, это все подразделение Tailspin Toys
---имя клиента нужно поменять так чтобы осталось только уточнение
---например исходное Tailspin Toys (Gasport, NY) - вы выводите в имени только Gasport,NY
---дата должна иметь формат dd.mm.yyyy например 25.12.2019
+--РљР»РёРµРЅС‚РѕРІ РІР·СЏС‚СЊ СЃ ID 2-6, СЌС‚Рѕ РІСЃРµ РїРѕРґСЂР°Р·РґРµР»РµРЅРёРµ Tailspin Toys
+--РёРјСЏ РєР»РёРµРЅС‚Р° РЅСѓР¶РЅРѕ РїРѕРјРµРЅСЏС‚СЊ С‚Р°Рє С‡С‚РѕР±С‹ РѕСЃС‚Р°Р»РѕСЃСЊ С‚РѕР»СЊРєРѕ СѓС‚РѕС‡РЅРµРЅРёРµ
+--РЅР°РїСЂРёРјРµСЂ РёСЃС…РѕРґРЅРѕРµ Tailspin Toys (Gasport, NY) - РІС‹ РІС‹РІРѕРґРёС‚Рµ РІ РёРјРµРЅРё С‚РѕР»СЊРєРѕ Gasport,NY
+--РґР°С‚Р° РґРѕР»Р¶РЅР° РёРјРµС‚СЊ С„РѕСЂРјР°С‚ dd.mm.yyyy РЅР°РїСЂРёРјРµСЂ 25.12.2019
 
---Например, как должны выглядеть результаты:
+--РќР°РїСЂРёРјРµСЂ, РєР°Рє РґРѕР»Р¶РЅС‹ РІС‹РіР»СЏРґРµС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚С‹:
 --InvoiceMonth Peeples Valley, AZ Medicine Lodge, KS Gasport, NY Sylvanite, MT Jessie, ND
 --01.01.2013 3 1 4 2 2
 --01.02.2013 7 3 4 2 1
 
 select *
-from (select substring(sc.CustomerName, 16, len(sc.CustomerName)-16) CustomerName,
-								format(si.InvoiceDate, 'dd.MM.yyyy') InvoiceDate, sil.InvoiceID
+from (select substring(sc.CustomerName, 16, len(sc.CustomerName)-16) as CustomerName,
+								 format(si.InvoiceDate, 'dd.MM.yyyy') as InvoiceDate, 
+									  					  sil.InvoiceID as InvoiceID
 		from Sales.Customers sc
 			join Sales.Invoices si on si.CustomerID = sc.CustomerID
 			join Sales.InvoiceLines sil on sil.InvoiceID = si.InvoiceID
 		 where sc.CustomerId between 2 and 6) as Customer
 	    pivot (count(InvoiceID) for CustomerName in ([Peeples Valley, AZ], [Medicine Lodge, KS], [Gasport, NY], [Jessie, ND])) as pvt
-		--order by year(pvt.InvoiceDate) -- С order by почему-то не работает
+		--order by year(pvt.InvoiceDate) -- РЎ order by РїРѕС‡РµРјСѓ-С‚Рѕ РЅРµ СЂР°Р±РѕС‚Р°РµС‚
+		 
+--2. Р”Р»СЏ РІСЃРµС… РєР»РёРµРЅС‚РѕРІ СЃ РёРјРµРЅРµРј, РІ РєРѕС‚РѕСЂРѕРј РµСЃС‚СЊ Tailspin Toys
+--РІС‹РІРµСЃС‚Рё РІСЃРµ Р°РґСЂРµСЃР°, РєРѕС‚РѕСЂС‹Рµ РµСЃС‚СЊ РІ С‚Р°Р±Р»РёС†Рµ, РІ РѕРґРЅРѕР№ РєРѕР»РѕРЅРєРµ
 
---2. Для всех клиентов с именем, в котором есть Tailspin Toys
---вывести все адреса, которые есть в таблице, в одной колонке
-
---Пример результатов
+--РџСЂРёРјРµСЂ СЂРµР·СѓР»СЊС‚Р°С‚РѕРІ
 --CustomerName AddressLine
 --Tailspin Toys (Head Office) Shop 38
 --Tailspin Toys (Head Office) 1877 Mittal Road
@@ -42,9 +43,9 @@ select *
 		 ) names
 unpivot (DeliveryAddressLine1 for [Address] in (AddressLine, AddressLine1)) as unpvt
 
---3. В таблице стран есть поля с кодом страны цифровым и буквенным
---сделайте выборку ИД страны, название, код - чтобы в поле был либо цифровой либо буквенный код
---Пример выдачи
+--3. Р’ С‚Р°Р±Р»РёС†Рµ СЃС‚СЂР°РЅ РµСЃС‚СЊ РїРѕР»СЏ СЃ РєРѕРґРѕРј СЃС‚СЂР°РЅС‹ С†РёС„СЂРѕРІС‹Рј Рё Р±СѓРєРІРµРЅРЅС‹Рј
+--СЃРґРµР»Р°Р№С‚Рµ РІС‹Р±РѕСЂРєСѓ РР” СЃС‚СЂР°РЅС‹, РЅР°Р·РІР°РЅРёРµ, РєРѕРґ - С‡С‚РѕР±С‹ РІ РїРѕР»Рµ Р±С‹Р» Р»РёР±Рѕ С†РёС„СЂРѕРІРѕР№ Р»РёР±Рѕ Р±СѓРєРІРµРЅРЅС‹Р№ РєРѕРґ
+--РџСЂРёРјРµСЂ РІС‹РґР°С‡Рё
 
 --CountryId CountryName Code
 --1 Afghanistan AFG
@@ -62,19 +63,22 @@ select *
 		 ) as Country
 unpivot (Code for [Name] in (IsoAlpha3Code,IsoNumericCodes)) as unpvt
 
---4. Перепишите ДЗ из оконных функций через CROSS APPLY
---Выберите по каждому клиенту 2 самых дорогих товара, которые он покупал
---В результатах должно быть ид клиета, его название, ид товара, цена, дата покупки
+--4. РџРµСЂРµРїРёС€РёС‚Рµ Р”Р— РёР· РѕРєРѕРЅРЅС‹С… С„СѓРЅРєС†РёР№ С‡РµСЂРµР· CROSS APPLY
+--Р’С‹Р±РµСЂРёС‚Рµ РїРѕ РєР°Р¶РґРѕРјСѓ РєР»РёРµРЅС‚Сѓ 2 СЃР°РјС‹С… РґРѕСЂРѕРіРёС… С‚РѕРІР°СЂР°, РєРѕС‚РѕСЂС‹Рµ РѕРЅ РїРѕРєСѓРїР°Р»
+--Р’ СЂРµР·СѓР»СЊС‚Р°С‚Р°С… РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РёРґ РєР»РёРµС‚Р°, РµРіРѕ РЅР°Р·РІР°РЅРёРµ, РёРґ С‚РѕРІР°СЂР°, С†РµРЅР°, РґР°С‚Р° РїРѕРєСѓРїРєРё
 
 select  sc.CustomerID, 
 		sc.CustomerName,
 		tabl.UnitPrice,
-		tabl.InvoiceDate
+		tabl.InvoiceDate,
+		tabl.StockItemName
 	from Sales.Customers sc
 		cross apply(select top 2	il.UnitPrice,
-									max(i.InvoiceDate) as InvoiceDate
+									max(i.InvoiceDate) as InvoiceDate,
+									StockItemName
 						from Sales.InvoiceLines il
 							join Sales.Invoices i on il.InvoiceID = i.InvoiceID
+								join Warehouse.StockItems si on il.StockItemID = si.StockItemID 
 								where sc.CustomerID=i.CustomerID
-								group by il.UnitPrice
+								group by il.UnitPrice, StockItemName
 								order by il.UnitPrice desc) as tabl
