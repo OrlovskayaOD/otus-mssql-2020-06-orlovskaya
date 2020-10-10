@@ -22,8 +22,8 @@ from (select substring(sc.CustomerName, 16, len(sc.CustomerName)-16) as Customer
 			join Sales.InvoiceLines sil on sil.InvoiceID = si.InvoiceID
 		 where sc.CustomerId between 2 and 6) as Customer
 	    pivot (count(InvoiceID) for CustomerName in ([Peeples Valley, AZ], [Medicine Lodge, KS], [Gasport, NY], [Jessie, ND])) as pvt
-		--order by year(pvt.InvoiceDate) -- С order by почему-то не работает
-		 
+		--order by month(pvt.InvoiceDate) -- С order by почему-то не работает
+				 
 --2. Для всех клиентов с именем, в котором есть Tailspin Toys
 --вывести все адреса, которые есть в таблице, в одной колонке
 
