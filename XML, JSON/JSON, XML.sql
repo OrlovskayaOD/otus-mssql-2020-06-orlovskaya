@@ -3,32 +3,48 @@
 --Существующие записи в таблице обновить, отсутствующие добавить (сопоставлять записи по полю StockItemName).
 --Файл StockItems.xml в личном кабинете.
 
---!!!!!!!!!!!!!!!!!!!!!ERROR 
---XML parsing: line 2, character 14, whitespace expected
-
 DECLARE @hdocid int, @StockItemsXml XML
 SET @StockItemsXml = (SELECT * FROM OPENROWSET (BULK 'C:\TEMP\StockItems.xml', SINGLE_BLOB) as data)
 
 select @StockItemsXml StockItemsImportXml
 
+exec sp_xml_preparedocument @hdocid output, @StockItemsXml;
 
---!!!!!!!!!!!!!!!!!!!!!ERROR 
---XML parsing: line 2, character 14, whitespace expected
-
---EXEC sp_xml_preparedocument @hdocid OUTPUT, @StockItemsXml;
-
---MERGE Warehouse.StockItems_Copy t
---using (
---SELECT l.*
---FROM OPENXML (@hdocid, N'/StockItems/Item',2)
---WITH
+merge Warehouse.StockItems as target
+	using (select * from openxml (@hdocid, N'/StockItems/Item',2)
+	with ([StockItemName] nvarchar(100) '@Name',
+		  [SupplierID] int 'SupplierID',
+		  [UnitPackageID] int 'Package/UnitPackageID',
+		  [OuterPackageID] int 'Package/OuterPackageID',
+		  [QuantityPerOuter] int 'Package/QuantityPerOuter',
+		  [TypicalWeightPerUnit] decimal 'Package/TypicalWeightPerUnit',
+		  [LeadTimeDays] int 'LeadTimeDays',
+		  [IsChillerStock] bit 'IsChillerStock',
+		  [TaxRate] decimal 'TaxRate',
+		  [UnitPrice] decimal 'UnitPrice'))		  
+	as source ([StockItemName], [SupplierID], [UnitPackageID], [OuterPackageID], [QuantityPerOuter], [TypicalWeightPerUnit], [LeadTimeDays], [IsChillerStock], [TaxRate], [UnitPrice])
+	on (target.StockItemName = source.StockItemName)
+	 when matched
+		then update set [StockItemName] = source.[StockItemName],
+						[SupplierID] = source.[SupplierID],
+						[UnitPackageID] = source.[UnitPackageID],
+						[OuterPackageID] = source.[OuterPackageID],
+						[QuantityPerOuter] = source.[QuantityPerOuter],
+						[TypicalWeightPerUnit] = source.[TypicalWeightPerUnit],
+						[LeadTimeDays] = source.[LeadTimeDays],
+						[IsChillerStock] = source.[IsChillerStock],
+						[TaxRate] = source.[TaxRate],
+						[UnitPrice] = source.[UnitPrice]
+	 when not matched
+		then insert ([StockItemName], [SupplierID], [UnitPackageID], [OuterPackageID], [QuantityPerOuter], [TypicalWeightPerUnit], [LeadTimeDays], [IsChillerStock], [TaxRate], [UnitPrice], [LastEditedBy])
+	 values (source.[StockItemName], source.[SupplierID], source.[UnitPackageID], source.[OuterPackageID], source.[QuantityPerOuter], source.[TypicalWeightPerUnit], source.[LeadTimeDays], source.[IsChillerStock], source.[TaxRate], source.[UnitPrice], 1)
+	 output deleted.*, $action, inserted.*;
 
 --2. Выгрузить данные из таблицы StockItems в такой же xml-файл, как StockItems.xml
 
---Примечания к заданиям 1, 2:
---* Если с выгрузкой в файл будут проблемы, то можно сделать просто SELECT c результатом в виде XML.
---* Если у вас в проекте предусмотрен экспорт/импорт в XML, то можете взять свой XML и свои таблицы.
---* Если с этим XML вам будет скучно, то можете взять любые открытые данные и импортировать их в таблицы (например, с https://data.gov.ru).
+select *
+ from Warehouse.StockItems
+  for xml path
 
 --3. В таблице Warehouse.StockItems в колонке CustomFields есть данные в JSON.
 --Написать SELECT для вывода:
