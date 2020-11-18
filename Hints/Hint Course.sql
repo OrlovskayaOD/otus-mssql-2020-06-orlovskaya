@@ -1,6 +1,7 @@
 SET STATISTICS io, time on;
+SET STATISTICS io, time on;
 
-
+--РСЃС…РѕРґРЅС‹Р№ РІР°СЂРёР°РЅС‚ Р·Р°РїСЂРѕСЃР°
 Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quantity) Kolvo, COUNT(ord.OrderID) Zakaz
 	FROM Sales.Orders AS ord
 		JOIN Sales.OrderLines AS det
@@ -24,12 +25,54 @@ Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quant
 	GROUP BY ord.CustomerID, det.StockItemID
 	ORDER BY ord.CustomerID, det.StockItemID
 
+--cte РґР»СЏ РѕРїС‚РёРјРёР·РёСЂСѓРµРјРѕРіРѕ Р·Р°РїСЂРѕСЃР°
+;with cteSupplierId
+		as (select SupplierId, StockItemID
+				from Warehouse.StockItems It
+					where SupplierID = 12),
+	  cteTotalSum
+		as (select SUM(Total.UnitPrice*Total.Quantity) TotalSum, CustomerID
+				from Sales.OrderLines Total
+					Join Sales.Orders ordTotal
+						On ordTotal.OrderID = Total.OrderID
+				group by CustomerID 
+					having SUM(Total.UnitPrice*Total.Quantity) > 250000)
+
+--РћРїС‚РёРјРёР·РёСЂРѕРІР°РЅРЅС‹Р№ Р·Р°РїСЂРѕСЃ										
+Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quantity) Kolvo, COUNT(ord.OrderID) Zakaz
+	from Sales.OrderLines det
+		join Sales.Orders ord
+			on det.OrderID = ord.OrderID
+		join Sales.Invoices AS Inv
+			on Inv.OrderID = ord.OrderID
+	--	JOIN Sales.CustomerTransactions AS Trans --Р»РёС€РЅСЏСЏ С‚Р°Р±Р»РёС†Р°
+	--		ON Trans.InvoiceID = Inv.InvoiceID
+		join Warehouse.StockItemTransactions AS ItemTrans
+			on ItemTrans.StockItemID = det.StockItemID
+		Join cteSupplierId as Supplier 
+			on Supplier.StockItemID = det.StockItemID
+		join cteTotalSum as TotalSum 
+			on TotalSum.CustomerId = Inv.CustomerID
+	WHERE Inv.BillToCustomerID != ord.CustomerID
+			--AND (Select SupplierId
+			--	FROM Warehouse.StockItems AS It
+			--		Where It.StockItemID = det.StockItemID) = 12 --РІ cte
+				--AND (SELECT SUM(Total.UnitPrice*Total.Quantity)
+				--		FROM Sales.OrderLines AS Total
+				--			Join Sales.Orders AS ordTotal
+				--				On ordTotal.OrderID = Total.OrderID
+				--		WHERE ordTotal.CustomerID = Inv.CustomerID) > 250000 --РІ cte
+			AND DATEDIFF(dd, Inv.InvoiceDate, ord.OrderDate) = 0
+	GROUP BY ord.CustomerID, det.StockItemID
+	ORDER BY ord.CustomerID, det.StockItemID
+
 --SQL Server parse and compile time: 
 --   CPU time = 0 ms, elapsed time = 0 ms.
 
 -- SQL Server Execution Times:
 --   CPU time = 1546 ms,  elapsed time = 1871 ms.
 
+--Р·Р°РїСЂРѕСЃ СЃ hints: merge, loop
 Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quantity) Kolvo, COUNT(ord.OrderID) Zakaz
 	FROM Sales.Orders AS ord
 		inner merge JOIN Sales.OrderLines AS det
@@ -61,10 +104,10 @@ Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quant
 -- SQL Server Execution Times:
 -- CPU time = 8181 ms,  elapsed time = 2324 ms.
 
---По времени выполнения второй запрос, т.е. запрос с применением Hint-ов, выполнялся дольше, чем без них.
---В плане стоимости запроса, проигрывает первый запрос, без Hint-ов, т.к. процентное соотношение здесь 26% к 74%.
+--РџРѕ РІСЂРµРјРµРЅРё РІС‹РїРѕР»РЅРµРЅРёСЏ РІС‚РѕСЂРѕР№ Р·Р°РїСЂРѕСЃ, С‚.Рµ. Р·Р°РїСЂРѕСЃ СЃ РїСЂРёРјРµРЅРµРЅРёРµРј Hint-РѕРІ, РІС‹РїРѕР»РЅСЏР»СЃСЏ РґРѕР»СЊС€Рµ, С‡РµРј Р±РµР· РЅРёС….
+--Р’ РїР»Р°РЅРµ СЃС‚РѕРёРјРѕСЃС‚Рё Р·Р°РїСЂРѕСЃР°, РїСЂРѕРёРіСЂС‹РІР°РµС‚ РїРµСЂРІС‹Р№ Р·Р°РїСЂРѕСЃ, Р±РµР· Hint-РѕРІ, С‚.Рє. РїСЂРѕС†РµРЅС‚РЅРѕРµ СЃРѕРѕС‚РЅРѕС€РµРЅРёРµ Р·РґРµСЃСЊ 26% Рє 74%.
 
---Пробовала использовать Option(force order)  -- Также, как и с Hint-ами, появляется параллелизм, остаются Hash Match, стоимость выполнения такого запроса лучше 60 к 40% время выполнения:
+--РџСЂРѕР±РѕРІР°Р»Р° РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ Option(force order)  -- РўР°РєР¶Рµ, РєР°Рє Рё СЃ Hint-Р°РјРё, РїРѕСЏРІР»СЏРµС‚СЃСЏ РїР°СЂР°Р»Р»РµР»РёР·Рј, РѕСЃС‚Р°СЋС‚СЃСЏ Hash Match, СЃС‚РѕРёРјРѕСЃС‚СЊ РІС‹РїРѕР»РЅРµРЅРёСЏ С‚Р°РєРѕРіРѕ Р·Р°РїСЂРѕСЃР° Р»СѓС‡С€Рµ 60 Рє 40% РІСЂРµРјСЏ РІС‹РїРѕР»РЅРµРЅРёСЏ:
 --SQL Server parse and compile time: 
 --   CPU time = 109 ms, elapsed time = 177 ms.
 
@@ -73,5 +116,5 @@ Select ord.CustomerID , det.StockItemID, SUM(det.UnitPrice) Summa, SUM(det.Quant
 --SQL Server parse and compile time: 
 --   CPU time = 0 ms, elapsed time = 0 ms.
 
---Без Option(forсe order) -- используя обычные merge, loop также есть параллелизм, что не есть хорошо, остаются Hash Match, но стоимость запроса, как упоминалось выше лучше.
---На выполнение запроса с Hint-ами, уходит больше времени.
+--Р‘РµР· Option(forСЃe order) -- РёСЃРїРѕР»СЊР·СѓСЏ РѕР±С‹С‡РЅС‹Рµ merge, loop С‚Р°РєР¶Рµ РµСЃС‚СЊ РїР°СЂР°Р»Р»РµР»РёР·Рј, С‡С‚Рѕ РЅРµ РµСЃС‚СЊ С…РѕСЂРѕС€Рѕ, РѕСЃС‚Р°СЋС‚СЃСЏ Hash Match, РЅРѕ СЃС‚РѕРёРјРѕСЃС‚СЊ Р·Р°РїСЂРѕСЃР°, РєР°Рє СѓРїРѕРјРёРЅР°Р»РѕСЃСЊ РІС‹С€Рµ Р»СѓС‡С€Рµ.
+--РќР° РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РїСЂРѕСЃР° СЃ Hint-Р°РјРё, СѓС…РѕРґРёС‚ Р±РѕР»СЊС€Рµ РІСЂРµРјРµРЅРё.
