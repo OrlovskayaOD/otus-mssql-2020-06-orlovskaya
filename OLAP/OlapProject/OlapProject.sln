@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{D2ABAB84-BF74-430A-B69E-9DC6D40DDA17}") = "OlapProject", "OlapProject\OlapProject.dwproj", "{78AB5657-BF32-41EC-81BC-937343D500E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{78AB5657-BF32-41EC-81BC-937343D500E4}.Development|Default.ActiveCfg = Development
+		{78AB5657-BF32-41EC-81BC-937343D500E4}.Development|Default.Build.0 = Development
+		{78AB5657-BF32-41EC-81BC-937343D500E4}.Development|Default.Deploy.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {86B95621-F7E5-4E3F-BCDE-F6D2C0F887C8}
+	EndGlobalSection
+EndGlobal

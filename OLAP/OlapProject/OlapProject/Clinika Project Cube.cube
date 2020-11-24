@@ -1,0 +1,166 @@
+﻿<Cube xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0" dwd:design-time-name="60ab110a-ed17-49dc-a236-78b8e0b91852" xmlns="http://schemas.microsoft.com/analysisservices/2003/engine">
+  <ID>Clinika Project Cube</ID>
+  <Name>Clinika Project Cube</Name>
+  <CreatedTimestamp>0001-01-01T00:00:00Z</CreatedTimestamp>
+  <LastSchemaUpdate>0001-01-01T00:00:00Z</LastSchemaUpdate>
+  <Annotations>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramLayout</Name>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:ShowFriendlyNames</Name>
+      <Value>true</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:ShowRelationshipNames</Name>
+      <Value>false</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:UseDiagramDefaultLayout</Name>
+      <Value>true</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramViewPortLeft</Name>
+      <Value>0</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramViewPortTop</Name>
+      <Value>0</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramBoundingLeft</Name>
+      <Value>0</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramBoundingTop</Name>
+      <Value>0</Value>
+    </Annotation>
+    <Annotation>
+      <Name>http://schemas.microsoft.com/DataWarehouse/Designer/1.0:DiagramZoom</Name>
+      <Value>100</Value>
+    </Annotation>
+  </Annotations>
+  <LastProcessed>0001-01-01T00:00:00Z</LastProcessed>
+  <State>Unprocessed</State>
+  <Dimensions>
+    <Dimension dwd:design-time-name="cc5d4c9e-e562-4df6-9361-4bfa6bfcdb2f">
+      <ID>Patient</ID>
+      <Name>Patient</Name>
+      <DimensionID>Patient</DimensionID>
+      <Attributes>
+        <Attribute dwd:design-time-name="7590952c-6c8a-436c-a538-38cdb412aa0b">
+          <AttributeID>Id</AttributeID>
+        </Attribute>
+      </Attributes>
+    </Dimension>
+    <Dimension dwd:design-time-name="d995e5f0-633a-4fb6-a518-1f3526812d92">
+      <ID>Doctors</ID>
+      <Name>Doctors</Name>
+      <DimensionID>Doctors</DimensionID>
+      <Attributes>
+        <Attribute dwd:design-time-name="e3b5aa77-ba8c-4ca8-acb9-4d36b74ff6cf">
+          <AttributeID>Id</AttributeID>
+        </Attribute>
+      </Attributes>
+    </Dimension>
+    <Dimension dwd:design-time-name="1be425ef-ebf7-4199-a228-fef603cee766">
+      <ID>Services</ID>
+      <Name>Services</Name>
+      <DimensionID>Services</DimensionID>
+      <Attributes>
+        <Attribute dwd:design-time-name="e331961e-ce50-4afa-bcdd-33af7906c120">
+          <AttributeID>Id</AttributeID>
+        </Attribute>
+      </Attributes>
+    </Dimension>
+  </Dimensions>
+  <MeasureGroups>
+    <MeasureGroup dwd:design-time-name="592d7122-b45f-41a8-8d72-fa650a1db8bc">
+      <ID>Ticket</ID>
+      <Name>Ticket</Name>
+      <CreatedTimestamp>0001-01-01T00:00:00Z</CreatedTimestamp>
+      <LastSchemaUpdate>0001-01-01T00:00:00Z</LastSchemaUpdate>
+      <LastProcessed>0001-01-01T00:00:00Z</LastProcessed>
+      <State>Unprocessed</State>
+      <Measures>
+        <Measure dwd:design-time-name="a3c06c86-ca1e-40c0-ac9c-15c50b18386a">
+          <ID>Число Ticket</ID>
+          <Name>Число Ticket</Name>
+          <AggregateFunction>Count</AggregateFunction>
+          <Source dwd:design-time-name="d815eb07-e066-404b-ae00-cbb5fa0cb538">
+            <DataType>Integer</DataType>
+            <DataSize>4</DataSize>
+            <Source xsi:type="RowBinding" dwd:design-time-name="7fc5c6ce-c44c-4fb7-b0a4-f9379a3afd0e">
+              <TableID>dbo_Ticket</TableID>
+            </Source>
+          </Source>
+        </Measure>
+      </Measures>
+      <StorageMode>Molap</StorageMode>
+      <ProcessingMode>Regular</ProcessingMode>
+      <Dimensions>
+        <Dimension xsi:type="RegularMeasureGroupDimension" dwd:design-time-name="56d90d8c-6ac1-42e3-b96e-2c62dc1d28a5">
+          <CubeDimensionID>Patient</CubeDimensionID>
+          <Attributes>
+            <Attribute dwd:design-time-name="e1b7c626-fb1c-4a67-8bd6-6dd816f65d16">
+              <AttributeID>Id</AttributeID>
+              <KeyColumns>
+                <KeyColumn dwd:design-time-name="392f3d52-be67-4ce2-9a84-2f6d1da0a791">
+                  <DataType>WChar</DataType>
+                  <DataSize>36</DataSize>
+                  <Source xsi:type="ColumnBinding" dwd:design-time-name="b00568fa-9270-4739-8022-9088afed6979">
+                    <TableID>dbo_Ticket</TableID>
+                    <ColumnID>id_patient</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension" dwd:design-time-name="0c36e456-dd47-43ef-9c4e-4dc468283d50">
+          <CubeDimensionID>Doctors</CubeDimensionID>
+          <Attributes>
+            <Attribute dwd:design-time-name="1df8eb9d-7497-4947-8120-243523200825">
+              <AttributeID>Id</AttributeID>
+              <KeyColumns>
+                <KeyColumn dwd:design-time-name="3c97e9d3-18ab-4ad4-a240-d0f5094f5244">
+                  <DataType>WChar</DataType>
+                  <DataSize>36</DataSize>
+                  <Source xsi:type="ColumnBinding" dwd:design-time-name="a2f81959-a409-478e-b642-9af35ab50d4b">
+                    <TableID>dbo_Ticket</TableID>
+                    <ColumnID>id_doctor</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+        <Dimension xsi:type="RegularMeasureGroupDimension" dwd:design-time-name="4a75aa32-cf24-4e80-b3e0-21f29ff7ab74">
+          <CubeDimensionID>Services</CubeDimensionID>
+          <Attributes>
+            <Attribute dwd:design-time-name="7fc29d83-d5c9-4322-82a9-c789d9fe0b2c">
+              <AttributeID>Id</AttributeID>
+              <KeyColumns>
+                <KeyColumn dwd:design-time-name="4fe0095f-b06a-4ce1-9ac3-9a9e3e1c82db">
+                  <DataType>WChar</DataType>
+                  <DataSize>36</DataSize>
+                  <Source xsi:type="ColumnBinding" dwd:design-time-name="3fc4c2de-a4a7-4e9c-b062-ec578fac47aa">
+                    <TableID>dbo_Ticket</TableID>
+                    <ColumnID>id_service</ColumnID>
+                  </Source>
+                </KeyColumn>
+              </KeyColumns>
+              <Type>Granularity</Type>
+            </Attribute>
+          </Attributes>
+        </Dimension>
+      </Dimensions>
+      <Partitions />
+    </MeasureGroup>
+  </MeasureGroups>
+  <Source dwd:design-time-name="6a169ae3-1c38-4805-b38d-53122be66414">
+    <DataSourceViewID>Clinika Project</DataSourceViewID>
+  </Source>
+</Cube>

@@ -1,0 +1,75 @@
+﻿<DeploymentSnapshot xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ddl2="http://schemas.microsoft.com/analysisservices/2003/engine/2" xmlns:ddl2_2="http://schemas.microsoft.com/analysisservices/2003/engine/2/2" xmlns:ddl100_100="http://schemas.microsoft.com/analysisservices/2008/engine/100/100" xmlns:ddl200="http://schemas.microsoft.com/analysisservices/2010/engine/200" xmlns:ddl200_200="http://schemas.microsoft.com/analysisservices/2010/engine/200/200" xmlns:ddl300="http://schemas.microsoft.com/analysisservices/2011/engine/300" xmlns:ddl300_300="http://schemas.microsoft.com/analysisservices/2011/engine/300/300" xmlns:ddl400="http://schemas.microsoft.com/analysisservices/2012/engine/400" xmlns:ddl400_400="http://schemas.microsoft.com/analysisservices/2012/engine/400/400" xmlns:ddl500="http://schemas.microsoft.com/analysisservices/2013/engine/500" xmlns:ddl500_500="http://schemas.microsoft.com/analysisservices/2013/engine/500/500" xmlns:dwd="http://schemas.microsoft.com/DataWarehouse/Designer/1.0">
+  <Target>
+    <Database>OlapProject</Database>
+    <Server>LAPTOP-8RGUNJN3\SQL2017</Server>
+    <ConnectionString>Data Source=LAPTOP-8RGUNJN3\SQL2017;Timeout=0</ConnectionString>
+  </Target>
+  <Options>
+    <TransactionalDeployment>false</TransactionalDeployment>
+    <PartitionDeployment>DeployPartitions</PartitionDeployment>
+    <RoleDeployment>DeployRolesRetainMembers</RoleDeployment>
+    <ProcessingOption>Default</ProcessingOption>
+    <OutputScript></OutputScript>
+    <ImpactAnalysisFile></ImpactAnalysisFile>
+    <ConfigurationSettingsDeployment>Deploy</ConfigurationSettingsDeployment>
+    <OptimizationSettingsDeployment>Deploy</OptimizationSettingsDeployment>
+    <WriteBackTableCreation>UseExisting</WriteBackTableCreation>
+  </Options>
+  <Snapshot>
+    <ObjectSnapshots>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.RelationalDataSource</Type>
+        <TimeStamp>AleEcgskVJzJTf/wD91Uxg/TUXg=23.11.2020 13:54:2323.11.2020 13:54:23</TimeStamp>
+        <ID>
+          <String>Clinika Project</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.DataSourceView</Type>
+        <TimeStamp>jPQOOMJOdRkaum/F/seZMcF5h5w=23.11.2020 14:11:5023.11.2020 14:11:49</TimeStamp>
+        <ID>
+          <String>Clinika Project</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>1aQYj5qbtxJx4UzD9DtsOK4ReE0=23.11.2020 14:13:4323.11.2020 14:13:43</TimeStamp>
+        <ID>
+          <String>Patient</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>JsbgDQZCMVhFj3MtKea91eDB12Q=23.11.2020 14:13:4323.11.2020 14:13:43</TimeStamp>
+        <ID>
+          <String>Doctors</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Dimension</Type>
+        <TimeStamp>cjOyBuUE5icpRCqvZyMg8ZBfoLg=23.11.2020 14:13:4423.11.2020 14:13:43</TimeStamp>
+        <ID>
+          <String>Services</String>
+        </ID>
+      </ObjectSnapshot>
+      <ObjectSnapshot>
+        <Type>Microsoft.AnalysisServices.Cube</Type>
+        <TimeStamp>heDriguKdjaBwk7zzdpt+Azjli8=23.11.2020 14:13:4423.11.2020 14:13:43mtHo2wyXYvJi+VYmZV7u0/2NewU=23.11.2020 14:13:4323.11.2020 14:13:43</TimeStamp>
+        <ID>
+          <String>Clinika Project Cube</String>
+        </ID>
+      </ObjectSnapshot>
+    </ObjectSnapshots>
+    <DatabaseSnapshot>
+      <Type>Microsoft.AnalysisServices.Database</Type>
+      <TimeStamp>4HjMVRUbtApR0yfDRbohzsNjl3o=23.11.2020 13:52:4723.11.2020 13:52:46</TimeStamp>
+      <ID>
+        <String>OlapProject</String>
+      </ID>
+    </DatabaseSnapshot>
+    <Granularity>Coarse</Granularity>
+  </Snapshot>
+  <AssemblyLocations />
+  <ProcessingComplete>false</ProcessingComplete>
+  <LastDeployed>2020-11-24T17:57:04.316667Z</LastDeployed>
+</DeploymentSnapshot>
